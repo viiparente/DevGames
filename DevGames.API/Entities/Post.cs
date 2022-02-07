@@ -2,7 +2,7 @@
 {
     public class Post
     {
-        public Post(string title, string description, int boardId)
+        public Post(int boardId, string description, string title)
         {
             Title = title;
             Description = description;
