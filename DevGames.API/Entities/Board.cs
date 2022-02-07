@@ -2,8 +2,9 @@
 {
     public class Board
     {
-        public Board(int Id, string gameTitle, string description, string rules)
+        public Board(int id, string gameTitle, string description, string rules)
         {
+            Id = id; 
             GameTitle = gameTitle;
             Description = description;
             Rules = rules;
