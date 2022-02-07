@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using DevGames.API.Models;
+using Microsoft.AspNetCore.Mvc;
 
 namespace DevGames.API.Controllers
 {
@@ -15,18 +16,20 @@ namespace DevGames.API.Controllers
         [HttpGet("{id}")]
         public IActionResult GetById(int id)
         {
+            // ou NotFound();
             return Ok();
         }
 
         [HttpPost]
-        public IActionResult Post()
+        public IActionResult Post(AddBoardInputModel model)
         {
-            return Ok();
+            // Location api/boards/1
+            return CreatedAtAction("GetById", new { id = model.Id }, model); ;
         }
 
         // PUT api/boards/1
         [HttpPut("{id}")]
-        public IActionResult Put(int id)
+        public IActionResult Put(int id, UpdateBoardInputModel model)
         {
             return NoContent();
         }
