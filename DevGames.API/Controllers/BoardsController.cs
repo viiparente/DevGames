@@ -20,12 +20,21 @@ namespace DevGames.API.Controllers
             this.mapper = mapper;
             this.repository = boardRepository;
         }
+        /// <summary>
+        /// Get all boards
+        /// </summary>
+        /// <returns>Boards</returns>
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
             return Ok(await repository.GetAllAsync());
         }
 
+        /// <summary>
+        /// Get One board
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns>Object Board</returns>
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
@@ -36,7 +45,24 @@ namespace DevGames.API.Controllers
             return Ok(board);
         }
 
+        /// <summary>
+        /// Post Board
+        /// </summary>
+        /// <remarks>
+        /// Request Body Example:
+        /// {
+        ///     "gameTitle": "GTA V",
+        ///     "description": "Jogo de Mundo Aberto top",
+        ///     "rules": "1. No SPAM."
+        /// }
+        /// </remarks>
+        /// <param name="model">Board Data </param>
+        /// <returns>Created Object</returns>
+        /// <response code="201">Sucess</response>
+        /// <response code="400">Invalid Data</response>
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Post(AddBoardInputModel model)
         {
             var board = mapper.Map<Board>(model);
@@ -46,8 +72,22 @@ namespace DevGames.API.Controllers
             return CreatedAtAction("GetById", new { id = board.Id }, model); ;
         }
 
+        /// <summary>
+        /// Update Description and Rules
+        /// </summary>
+        /// <remarks>
+        /// {
+        ///     "description": "Atualização de Descrição do Jogo",
+        ///     "rules": "1. Sem regra! 2.Joguem"
+        /// }
+        /// </remarks>
+        /// <param name="id"></param>
+        /// <param name="model"></param>
+        /// <returns>No Content</returns>
+        /// <response code="200">OK</response>
         // PUT api/boards/1
         [HttpPut("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> Put(int id, UpdateBoardInputModel model)
         {
             var board = await repository.GetByIdAsync(id);
@@ -60,6 +100,6 @@ namespace DevGames.API.Controllers
 
             return NoContent();
         }
-       
+
     }
 }
