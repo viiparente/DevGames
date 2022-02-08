@@ -5,6 +5,7 @@ using DevGames.API.Persistence;
 using DevGames.API.Persistence.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 
 namespace DevGames.API.Controllers
 {
@@ -27,7 +28,11 @@ namespace DevGames.API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            return Ok(await repository.GetAllAsync());
+            var boards = await repository.GetAllAsync();
+
+            Log.Information($"{boards.Count} boards retrieved.");
+
+            return Ok(boards);
         }
 
         /// <summary>
@@ -41,6 +46,8 @@ namespace DevGames.API.Controllers
             var board = await repository.GetByIdAsync(id);
             if (board == null)
                 return NotFound();
+
+            Log.Information($"{board.Id} board retrieved.");
 
             return Ok(board);
         }
@@ -68,6 +75,8 @@ namespace DevGames.API.Controllers
             var board = mapper.Map<Board>(model);
 
             await repository.AddAsync(board);
+
+            Log.Information($"{board.GameTitle} board created.");
 
             return CreatedAtAction("GetById", new { id = board.Id }, model); ;
         }
@@ -97,6 +106,8 @@ namespace DevGames.API.Controllers
             board.Update(model.Description, model.Rules);
 
             await repository.UpdateAsync(board);
+
+            Log.Information($"{board.Id} board update.");
 
             return NoContent();
         }

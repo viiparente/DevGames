@@ -3,9 +3,25 @@ using DevGames.API.Persistence;
 using DevGames.API.Persistence.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using Serilog;
+using Serilog.Sinks.MSSqlServer;
 using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Host.ConfigureAppConfiguration((hostingContext, config) =>
+{
+    var settings = config.Build();
+    Serilog.Log.Logger = new LoggerConfiguration()
+        .Enrich.FromLogContext()
+        .WriteTo.MSSqlServer(settings.GetConnectionString("DevGamesCs"),
+        sinkOptions: new MSSqlServerSinkOptions()
+        {
+            AutoCreateSqlTable = true,
+            TableName = "Logs"
+        })
+        .CreateLogger();
+}).UseSerilog();
 
 // Add services to the container.
 var connectionString = builder.Configuration.GetConnectionString("DevGamesCs");
@@ -52,7 +68,7 @@ builder.Services.AddSwaggerGen(c =>
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+if (app.Environment.IsProduction() || app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
