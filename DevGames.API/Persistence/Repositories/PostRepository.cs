@@ -12,36 +12,35 @@ namespace DevGames.API.Persistence.Repositories
             this.context = context;
         }
 
-        public void Add(Post post)
+        public async Task AddAsync(Post post)
         {
-            context.Posts.Add(post);
-            context.SaveChanges();
+            await context.Posts.AddAsync(post);
+            await context.SaveChangesAsync();
         }
 
-        public void AddComment(Comment comment)
+        public async Task AddCommentAsync(Comment comment)
         {
-            context.Comments.Add(comment);
-            context.SaveChanges();
+            await context.Comments.AddAsync(comment);
+            await context.SaveChangesAsync();
+        }
+        public async Task<List<Post>> GetAllByBoardAsync(int boardId)
+        {
+            return await context.Posts.Where(p => p.BoardId == boardId).ToListAsync();
         }
 
-        public IEnumerable<Post> GetAllByBoard(int boardId)
+        public async Task<Post> GetByIdAsync(int id)
         {
-            return context.Posts.Where(p => p.BoardId == boardId);
-        }
-
-        public Post GetById(int id)
-        {
-            var post = context
+            var post = await context
                 .Posts
                 .Include(p => p.Comments)
-                .SingleOrDefault(p => p.Id == id);
+                .SingleOrDefaultAsync(p => p.Id == id);
 
             return post;
         }
 
-        public bool PostExists(int postId)
+        public async Task<bool> PostExistsAsync(int postId)
         {
-            return context.Posts.Any(p => p.Id == postId);
+            return await context.Posts.AnyAsync(p => p.Id == postId);
         }
     }
 }

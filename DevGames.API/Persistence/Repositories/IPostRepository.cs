@@ -4,10 +4,10 @@ namespace DevGames.API.Persistence.Repositories
 {
     public interface IPostRepository
     {
-        IEnumerable<Post> GetAllByBoard(int boardId);
-        Post GetById(int id);
-        void Add(Post post);
-        void AddComment(Comment comment);
-        bool PostExists(int postId);
+        Task<List<Post>> GetAllByBoardAsync(int boardId);
+        Task<Post> GetByIdAsync(int id);
+        Task AddAsync(Post post);
+        Task AddCommentAsync(Comment comment);
+        Task<bool> PostExistsAsync(int postId);
     }
 }

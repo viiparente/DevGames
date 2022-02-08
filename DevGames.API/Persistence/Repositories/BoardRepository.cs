@@ -1,4 +1,5 @@
 ﻿using DevGames.API.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace DevGames.API.Persistence.Repositories
 {
@@ -11,26 +12,26 @@ namespace DevGames.API.Persistence.Repositories
             this.context = context;
         }
 
-        public void Add(Board board)
+        public async Task AddAsync(Board board)
         {
-            context.Boards.Add(board);
-            context.SaveChanges();
+            await context.Boards.AddAsync(board);
+            await context.SaveChangesAsync();
         }
 
-        public IEnumerable<Board> GetAll()
+        public async Task<List<Board>> GetAllAsync()
         {
-            return context.Boards.ToList();
+            return await context.Boards.ToListAsync();
         }
 
-        public Board GetById(int id)
+        public async Task<Board> GetByIdAsync(int id)
         {
-            return context.Boards.SingleOrDefault(b => b.Id == id);
+            return await context.Boards.SingleOrDefaultAsync(b => b.Id == id);
         }
 
-        public void Update(Board board)
+        public async Task UpdateAsync(Board board)
         {
             context.Boards.Update(board);
-            context.SaveChanges();
+            await context.SaveChangesAsync();
         }
     }
 }

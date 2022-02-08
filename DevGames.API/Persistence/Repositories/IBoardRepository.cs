@@ -4,9 +4,9 @@ namespace DevGames.API.Persistence.Repositories
 {
     public interface IBoardRepository
     {
-        IEnumerable<Board> GetAll();
-        Board GetById(int id);
-        void Add(Board board);
-        void Update(Board board);
+        Task<List<Board>> GetAllAsync();
+        Task<Board> GetByIdAsync(int id);
+        Task AddAsync(Board board);
+        Task UpdateAsync(Board board);
     }
 }

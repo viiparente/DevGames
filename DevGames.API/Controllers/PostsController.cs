@@ -1,6 +1,7 @@
 ﻿using DevGames.API.Entities;
 using DevGames.API.Models;
 using DevGames.API.Persistence;
+using DevGames.API.Persistence.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -12,10 +13,10 @@ namespace DevGames.API.Controllers
     [ApiController]
     public class PostsController : ControllerBase
     {
-        private readonly DevGamesContext context;
-        public PostsController(DevGamesContext context)
+        private readonly IPostRepository repository;
+        public PostsController(IPostRepository postRepository)
         {
-            this.context = context;
+            this.repository = postRepository;
         }
 
         // api/boards/1/posts
@@ -23,7 +24,7 @@ namespace DevGames.API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll(int id)
         {
-            var posts = await context.Posts.Where(p => p.BoardId == id).ToListAsync();
+            var posts = await repository.GetAllByBoardAsync(id);
 
             return Ok(posts);
         }
@@ -31,10 +32,7 @@ namespace DevGames.API.Controllers
         [HttpGet("{postId}")]
         public async Task<IActionResult> GetById(int id, int postId)
         {
-            var post = await context
-                .Posts
-                .Include(p => p.Comments)
-                .SingleOrDefaultAsync(p => p.Id == postId);
+            var post = await repository.GetByIdAsync(postId);
             if (post == null)
                 return NotFound();
 
@@ -47,8 +45,7 @@ namespace DevGames.API.Controllers
         {
             var post = new Post(id, model.Title, model.Description);
 
-            await context.Posts.AddAsync(post);
-            await context.SaveChangesAsync();
+            await repository.AddAsync(post);
 
             return CreatedAtAction(nameof(GetById), new { id = post.Id, postId = post.Id }, model);
         }
@@ -57,14 +54,13 @@ namespace DevGames.API.Controllers
         [HttpPost("{postId}/comments")]
         public async Task<IActionResult> PostComment(int id, int postId, AddCommentInputModel model)
         {
-            var postExists = await context.Posts.AnyAsync(p => p.Id == postId);
+            var postExists = await repository.PostExistsAsync(postId);
             if (!postExists)
                 NotFound();
 
             var comment = new Comment(model.Title, model.Description, model.User, postId);
 
-            await context.Comments.AddAsync(comment);
-            await context.SaveChangesAsync();
+            await repository.AddCommentAsync(comment);
 
             return NoContent();
         }

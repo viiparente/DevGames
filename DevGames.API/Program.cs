@@ -1,5 +1,6 @@
 using DevGames.API.Mappers;
 using DevGames.API.Persistence;
+using DevGames.API.Persistence.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 
@@ -16,8 +17,10 @@ builder.Services
 //    .AddDbContext<DevGamesContext>(o =>
 //        o.UseInMemoryDatabase("DevGamesDb"));
 
-builder.Services.AddAutoMapper(typeof(BoardMapper));
+builder.Services.AddScoped<IBoardRepository, BoardRepository>();
+builder.Services.AddScoped<IPostRepository, PostRepository>();
 
+builder.Services.AddAutoMapper(typeof(BoardMapper));
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
