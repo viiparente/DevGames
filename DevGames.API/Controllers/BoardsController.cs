@@ -3,6 +3,7 @@ using DevGames.API.Entities;
 using DevGames.API.Models;
 using DevGames.API.Persistence;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace DevGames.API.Controllers
 {
@@ -19,15 +20,15 @@ namespace DevGames.API.Controllers
             this.mapper = mapper;
         }
         [HttpGet]
-        public IActionResult GetAll()
+        public async Task<IActionResult> GetAll()
         {
-            return Ok(context.Boards);
+            return Ok(await context.Boards.ToListAsync());
         }
 
         [HttpGet("{id}")]
-        public IActionResult GetById(int id)
+        public async Task<IActionResult> GetById(int id)
         {
-            var board = context.Boards.SingleOrDefault(x => x.Id == id);
+            var board = await context.Boards.SingleOrDefaultAsync(x => x.Id == id);
             if (board == null)
                 return NotFound();
 
@@ -35,26 +36,26 @@ namespace DevGames.API.Controllers
         }
 
         [HttpPost]
-        public IActionResult Post(AddBoardInputModel model)
+        public async Task<IActionResult> Post(AddBoardInputModel model)
         {
             var board = mapper.Map<Board>(model);
-            
-            context.Boards.Add(board);
-            context.SaveChanges();
+
+            await context.Boards.AddAsync(board);
+            await context.SaveChangesAsync();
 
             return CreatedAtAction("GetById", new { id = board.Id }, model); ;
         }
 
         // PUT api/boards/1
         [HttpPut("{id}")]
-        public IActionResult Put(int id, UpdateBoardInputModel model)
+        public async Task<IActionResult> Put(int id, UpdateBoardInputModel model)
         {
-            var board = context.Boards.SingleOrDefault(x => x.Id == id);
+            var board = await context.Boards.SingleOrDefaultAsync(x => x.Id == id);
             if (board == null)
                 return NotFound();
             board.Update(model.Description, model.Rules);
 
-            context.SaveChanges();
+            await context.SaveChangesAsync();
 
             return NoContent();
         }

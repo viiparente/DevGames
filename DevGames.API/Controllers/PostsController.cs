@@ -21,20 +21,20 @@ namespace DevGames.API.Controllers
         // api/boards/1/posts
         // o id e o identificador do board
         [HttpGet]
-        public IActionResult GetAll(int id)
+        public async Task<IActionResult> GetAll(int id)
         {
-            var posts = context.Posts.Where(p => p.BoardId == id);
+            var posts = await context.Posts.Where(p => p.BoardId == id).ToListAsync();
 
             return Ok(posts);
         }
 
         [HttpGet("{postId}")]
-        public IActionResult GetById(int id, int postId)
+        public async Task<IActionResult> GetById(int id, int postId)
         {
-            var post = context
+            var post = await context
                 .Posts
                 .Include(p => p.Comments)
-                .SingleOrDefault(p => p.Id == postId);
+                .SingleOrDefaultAsync(p => p.Id == postId);
             if (post == null)
                 return NotFound();
 
@@ -43,28 +43,28 @@ namespace DevGames.API.Controllers
         }
 
         [HttpPost]
-        public IActionResult Post(int id, AddPostInputModel model)
+        public async Task<IActionResult> Post(int id, AddPostInputModel model)
         {
             var post = new Post(id, model.Title, model.Description);
 
-            context.Posts.Add(post);
-            context.SaveChanges();
+            await context.Posts.AddAsync(post);
+            await context.SaveChangesAsync();
 
             return CreatedAtAction(nameof(GetById), new { id = post.Id, postId = post.Id }, model);
         }
 
         // POST - api/boards/1/posts/1/comments 
         [HttpPost("{postId}/comments")]
-        public IActionResult PostComment(int id, int postId, AddCommentInputModel model)
+        public async Task<IActionResult> PostComment(int id, int postId, AddCommentInputModel model)
         {
-            var postExists = context.Posts.Any(p => p.Id == postId);
+            var postExists = await context.Posts.AnyAsync(p => p.Id == postId);
             if (!postExists)
                 NotFound();
 
             var comment = new Comment(model.Title, model.Description, model.User, postId);
 
-            context.Comments.Add(comment);
-            context.SaveChanges();
+            await context.Comments.AddAsync(comment);
+            await context.SaveChangesAsync();
 
             return NoContent();
         }
