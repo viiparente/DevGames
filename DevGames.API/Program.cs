@@ -6,8 +6,16 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+var connectionString = builder.Configuration.GetConnectionString("DevGamesCs");
 
-builder.Services.AddSingleton<DevGamesContext>();
+builder.Services
+    .AddDbContext<DevGamesContext>(o =>
+        o.UseSqlServer(connectionString));
+
+//builder.Services
+//    .AddDbContext<DevGamesContext>(o =>
+//        o.UseInMemoryDatabase("DevGamesDb"));
+
 builder.Services.AddAutoMapper(typeof(BoardMapper));
 
 builder.Services.AddControllers();

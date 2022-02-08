@@ -41,7 +41,7 @@ namespace DevGames.API.Controllers
             
             context.Boards.Add(board);
 
-            return CreatedAtAction("GetById", new { id = model.Id }, model); ;
+            return CreatedAtAction("GetById", new { id = board.Id }, model); ;
         }
 
         // PUT api/boards/1
