@@ -3,6 +3,7 @@ using DevGames.API.Models;
 using DevGames.API.Persistence;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace DevGames.API.Controllers
 {
@@ -22,54 +23,48 @@ namespace DevGames.API.Controllers
         [HttpGet]
         public IActionResult GetAll(int id)
         {
-            var board = context.Boards.SingleOrDefault(b => b.Id == id);
-            if (board == null)
-                return NotFound();
-            
-            return Ok(board.Posts);
+            var posts = context.Posts.Where(p => p.BoardId == id);
+
+            return Ok(posts);
         }
 
         [HttpGet("{postId}")]
         public IActionResult GetById(int id, int postId)
         {
-            var board = context.Boards.SingleOrDefault(b => b.Id == id);
-            if (board == null)
+            var post = context
+                .Posts
+                .Include(p => p.Comments)
+                .SingleOrDefault(p => p.Id == postId);
+            if (post == null)
                 return NotFound();
 
-            var post = board.Posts.SingleOrDefault(p => p.Id == postId);
-            if (post == null)
-                NotFound();
-            
+
             return Ok(post);
         }
 
         [HttpPost]
         public IActionResult Post(int id, AddPostInputModel model)
         {
-            var board = context.Boards.SingleOrDefault(b => b.Id == id);
-            if (board == null)
-                return NotFound();
+            var post = new Post(id, model.Title, model.Description);
 
-            var post = new Post(board.Id, model.Title, model.Description);
-            board.AddPost(post);
+            context.Posts.Add(post);
+            context.SaveChanges();
 
-            return CreatedAtAction(nameof(GetById), new { id, postId = post.Id }, model);
+            return CreatedAtAction(nameof(GetById), new { id = post.Id, postId = post.Id }, model);
         }
 
         // POST - api/boards/1/posts/1/comments 
         [HttpPost("{postId}/comments")]
         public IActionResult PostComment(int id, int postId, AddCommentInputModel model)
         {
-            var board = context.Boards.SingleOrDefault(b => b.Id == id);
-            if (board == null)
-                return NotFound();
-
-            var post = board.Posts.SingleOrDefault(p => p.Id == postId);
-            if (post == null)
+            var postExists = context.Posts.Any(p => p.Id == postId);
+            if (!postExists)
                 NotFound();
+
             var comment = new Comment(model.Title, model.Description, model.User, postId);
-            
-            post.AddComment(comment);
+
+            context.Comments.Add(comment);
+            context.SaveChanges();
 
             return NoContent();
         }
